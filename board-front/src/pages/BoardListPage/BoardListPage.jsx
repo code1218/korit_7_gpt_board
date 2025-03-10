@@ -23,6 +23,7 @@ function BoardListPage(props) {
     });
 
     const [ pageNumbers, setPageNumbers ] = useState([]);
+    const [ searchInputValue, setSearchInputValue ] = useState("");
 
     const orderSelectOptions = [
         {label: "최근 게시글", value: "recent"},
@@ -53,10 +54,23 @@ function BoardListPage(props) {
     }, [searchParams]);
 
     const handlePageNumbersOnClick = (pageNumber) => {
-        setSearchParams(prev => ({
-            ...prev,
-            page: pageNumber,
-        }));
+        searchParams.set("page", pageNumber);
+        setSearchParams(searchParams);
+    }
+
+    const handleSelectOnChange = (option) => {
+        searchParams.set("order", option.value);
+        setSearchParams(searchParams);
+    }
+
+    const handleSearchButtonOnClick = () => {
+        searchParams.set("page", 1);
+        searchParams.set("searchText", searchInputValue);
+        setSearchParams(searchParams);
+    }
+
+    const handleSearchInputOnKeyDown = () => {
+        
     }
 
     return (
@@ -79,10 +93,12 @@ function BoardListPage(props) {
                                 padding: "0.3rem",
                             })
                         }}
+                        value={orderSelectOptions.find((option) => option.value === order)}
+                        onChange={handleSelectOnChange}
                     />
                     <div css={s.searchInputBox}>
-                        <input type="text" />
-                        <button css={emptyButton}><BiSearch /></button>
+                        <input type="text" value={searchInputValue} onChange={(e) => setSearchInputValue(e.target.value)} onKeyDown={handleSearchInputOnKeyDown} />
+                        <button css={emptyButton} onClick={handleSearchButtonOnClick}><BiSearch /></button>
                     </div>
                 </div>
             </div>
@@ -125,13 +141,13 @@ function BoardListPage(props) {
             </div>
             <div css={s.footer}>
                 <div css={s.pageNumbers}>
-                    <div><GoChevronLeft /></div>
+                    <button disabled={searchBoardList?.data?.data.firstPage} onClick={() => handlePageNumbersOnClick(page - 1)}><GoChevronLeft /></button>
                     {
                         pageNumbers.map(number => 
-                            <div css={s.pageNum(page === number)} onClick={() => handlePageNumbersOnClick(number)}><span>{number}</span></div>
+                            <button key={number} css={s.pageNum(page === number)} onClick={() => handlePageNumbersOnClick(number)}><span>{number}</span></button>
                         )
                     }
-                    <div><GoChevronRight /></div>
+                    <button disabled={searchBoardList?.data?.data.lastPage} onClick={() => handlePageNumbersOnClick(page + 1)}><GoChevronRight /></button>
                 </div>
             </div>
         </div>
